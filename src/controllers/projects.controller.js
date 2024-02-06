@@ -2,8 +2,13 @@ import { Project } from '../models/Project.js';
 import HttpError from '../utils/httpError.js';
 
 export const getAll = async (req, res) => {
+    const { userId } = req.userData;
     try {
-        const projects = await Project.findAll();
+        const projects = await Project.findAll({
+            where: {
+                userId,
+            }
+        });
 
         res.json(projects);
     } catch (error) {
@@ -15,11 +20,13 @@ export const getAll = async (req, res) => {
 
 export const create = async (req, res) => {
     const { name, description } = req.body;
+    const { userId } = req.userData;
     
     try {
         const project = await Project.create({
             name,
             description,
+            userId,
         });
 
         res.status(201).json(project);
@@ -32,9 +39,15 @@ export const create = async (req, res) => {
 
 export const getById = async (req, res) => {
     const { id } = req.params;
+    const { userId } = req.userData;
 
     try {
-        const project = await Project.findByPk(id);
+        const project = await Project.findOne({
+            where: {
+                id,
+                userId,
+            }
+        });
 
         if (!project) {
             throw new HttpError(`Project with id ${id} not found`, 404);
@@ -51,9 +64,15 @@ export const getById = async (req, res) => {
 export const update = async (req, res) => {
     const { id } = req.params;
     const { name, description } = req.body;
+    const { userId } = req.userData;
 
     try {
-        const project = await Project.findByPk(id);
+        const project = await Project.findOne({
+            where: {
+                id,
+                userId,
+            }
+        });
 
         if (!project) {
             throw new HttpError(`Project with id ${id} not found`, 404);
@@ -74,9 +93,15 @@ export const update = async (req, res) => {
 
 export const destroy = async (req, res) => {
     const { id } = req.params;
+    const { userId } = req.userData;
 
     try {
-        const project = await Project.findByPk(id);
+        const project = await Project.findOne({
+            where: {
+                id,
+                userId,
+            }
+        });
 
         if (!project) {
             throw new HttpError(`Project with id ${id} not found`, 404);
@@ -94,9 +119,14 @@ export const destroy = async (req, res) => {
 
 export const getTasksByProjectId = async (req, res) => {
     const { id } = req.params;
+    const { userId } = req.userData;
 
     try {
-        const project = await Project.findByPk(id, {
+        const project = await Project.findOne({
+            where: {
+                id,
+                userId,
+            },
             include: 'tasks',
         });
 
